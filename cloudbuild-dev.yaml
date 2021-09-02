@@ -1,0 +1,56 @@
+steps:
+- name: "gcr.io/cloud-builders/npm:node-12.18.3"
+  id: "Install Angular Dependencies"
+  args: ['install', '.']
+  dir: 'angular-app'
+- name: "gcr.io/cloud-builders/npm:node-12.18.3"
+  id: "Angular Build"
+  args: [ 'run', 'build']
+  dir: 'angular-app'
+- name: "gcr.io/cloud-builders/npm:node-12.18.3"
+  id: "Install Node Dependencies"
+  args: ['install','.']
+  dir: 'node-app'
+- name: "gcr.io/cloud-builders/npm:node-12.18.3"
+  id: "Create Environment Variables"
+  args: ["run", "create-env"]
+  dir: 'node-app'
+  env:
+    - 'PROJECT_ID=${_PROJECT_ID}'
+    - 'JWT_SECRET=${_JWT_SECRET}'
+    - 'DB_USERNAME=${_DB_USERNAME}'
+    - 'DB_PASSWORD=${_DB_PASSWORD}'
+    - 'DB_HOST=${_DB_HOST}'
+    - 'DB_URL=${_DB_URL}'
+    - 'SMTP_HOST=${_SMTP_HOST}'
+    - 'SMTP_PORT=${_SMTP_PORT}'
+    - 'SMTP_SECURE=${_SMTP_SECURE}'
+    - 'SMTP_USERNAME=${_SMTP_USERNAME}'
+    - 'SMTP_APP_PASSWORD=${_SMTP_APP_PASSWORD}'
+    - 'S3_BUCKET_NAME=${_S3_BUCKET_NAME}'
+    - 'S3_PUBLIC_BUCKET_NAME=${_S3_PUBLIC_BUCKET_NAME}'
+    - 'AWS_ACCESS_KEY=${_AWS_ACCESS_KEY}'
+    - 'AWS_SECRET_ACCESS_KEY=${_AWS_SECRET_ACCESS_KEY}'
+    - 'AIRTEL_USERNAME=${_AIRTEL_USERNAME}'
+    - 'AIRTEL_PASSWORD=${_AIRTEL_PASSWORD}'
+    - 'AIRTEL_AUTHORIZATION=${_AIRTEL_AUTHORIZATION}'
+    - 'AIRTEL_CALLFLOW_ID=${_AIRTEL_CALLFLOW_ID}'
+    - 'AIRTEL_CUSTOMER_ID=${_AIRTEL_CUSTOMER_ID}'
+    - 'AIRTEL_CALLER_ID=${_AIRTEL_CALLER_ID}'
+    - 'AIRTEL_PARTICIPANT_ADDRESS=${_AIRTEL_PARTICIPANT_ADDRESS}'
+    - 'AIRTEL_PARTICIPANT_CALLER_ID=${_AIRTEL_PARTICIPANT_CALLER_ID}'
+    - 'AIRTEL_CDR_NOTIFY_URL=${_AIRTEL_CDR_NOTIFY_URL}'
+    - 'AIRTEL_ADD_PARTICIPANT_CALLER_ID=${_AIRTEL_ADD_PARTICIPANT_CALLER_ID}'
+    - 'AIRTEL_ADD_PARTICIPANT_ADDRESS=${_AIRTEL_ADD_PARTICIPANT_ADDRESS}'
+    - 'AIRTEL_BASE_URL=${_AIRTEL_BASE_URL}'
+    - 'AIRTEL_VERSION=${_AIRTEL_VERSION}'
+- name: "gcr.io/cloud-builders/npm:node-12.18.3"
+  id: "Compile Typescript"
+  args: ['run', 'tsc']
+  dir: 'node-app'
+- name: "gcr.io/cloud-builders/gcloud"
+  id: "Deployment Started"
+  args: ["app", "deploy", "node-app/app.yaml"]
+timeout: "1600s"
+options:
+  logging: CLOUD_LOGGING_ONLY
